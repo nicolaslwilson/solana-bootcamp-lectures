@@ -11,9 +11,13 @@ const {
 const BN = require("bn.js");
 
 const main = async () => {
-  var args = process.argv.slice(2);
-  const programId = new PublicKey(args[0]);
-  const echo = args[1];
+  // var args = process.argv.slice(2);
+  // const programId = new PublicKey(args[0]);
+  const programId = new PublicKey(
+    "6noSzHzFuyU4VYafb8kX28iXZWaMxKkfAX5wDKrF16nT"
+  );
+  // const echo = args[1];
+  const echo = "foo";
 
   const connection = new Connection("https://api.devnet.solana.com/");
 
@@ -28,15 +32,19 @@ const main = async () => {
     fromPubkey: feePayer.publicKey,
     newAccountPubkey: echoBuffer.publicKey,
     /** Amount of lamports to transfer to the created account */
-    lamports: await connection.getMinimumBalanceForRentExemption(echo.length),
+    lamports: await connection.getMinimumBalanceForRentExemption(
+      echo.length + 1
+    ),
     /** Amount of space in bytes to allocate to the created account */
-    space: echo.length,
+    space: echo.length + 1,
     /** Public key of the program to assign as the owner of the created account */
     programId: programId,
   });
 
   const idx = Buffer.from(new Uint8Array([0]));
-  const messageLen = Buffer.from(new Uint8Array((new BN(echo.length)).toArray("le", 4)));
+  const messageLen = Buffer.from(
+    new Uint8Array(new BN(echo.length).toArray("le", 4))
+  );
   const message = Buffer.from(echo, "ascii");
 
   let echoIx = new TransactionInstruction({
@@ -68,6 +76,21 @@ const main = async () => {
 
   data = (await connection.getAccountInfo(echoBuffer.publicKey)).data;
   console.log("Echo Buffer Text:", data.toString());
+
+  let tx2 = new Transaction();
+  tx2.add(echoIx);
+
+  let txid2 = await sendAndConfirmTransaction(
+    connection,
+    tx2,
+    [feePayer, echoBuffer],
+    {
+      skipPreflight: true,
+      preflightCommitment: "confirmed",
+      confirmation: "confirmed",
+    }
+  );
+  console.log(`https://explorer.solana.com/tx/${txid2}?cluster=devnet`);
 };
 
 main()

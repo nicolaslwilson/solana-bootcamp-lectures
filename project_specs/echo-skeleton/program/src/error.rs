@@ -6,6 +6,8 @@ use thiserror::Error;
 pub enum EchoError {
     #[error("Instruction not implemented.")]
     NotImplemented,
+    #[error("Account previously written")]
+    AccountAlreadyWritten
 }
 
 impl From<EchoError> for ProgramError {
