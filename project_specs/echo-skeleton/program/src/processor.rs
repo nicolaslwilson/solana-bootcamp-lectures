@@ -1,4 +1,5 @@
 use borsh::BorshDeserialize;
+use borsh::BorshSerialize;
 use solana_program::account_info::next_account_info;
 use solana_program::program::invoke_signed;
 use solana_program::rent::Rent;
@@ -11,6 +12,7 @@ use solana_program::{
 
 use crate::error::EchoError;
 use crate::instruction::EchoInstruction;
+use crate::state::AuthorizedBufferHeader;
 
 pub struct Processor {}
 
@@ -98,10 +100,17 @@ impl Processor {
 
                 // msg!(&format!("{:?}", authorized_buffer.data));
 
-                let initial_data = [&[bump_seed], &buffer_seed.to_le_bytes()[..]].concat();
-                let mut buffer_data = authorized_buffer.try_borrow_mut_data()?;
+                // let initial_data = [&[bump_seed], &buffer_seed.to_le_bytes()[..]].concat();
+                let initial_data = AuthorizedBufferHeader {
+                    bump_seed: bump_seed,
+                    buffer_seed: buffer_seed,
+                    buffer: [].to_vec(),
+                };
+                // let mut buffer_data = authorized_buffer.try_borrow_mut_data()?;
+                initial_data.serialize(&mut *authorized_buffer.data.borrow_mut());
+                // buffer_data[..].copy_from_slice();
 
-                buffer_data[0..9].copy_from_slice(&initial_data[..]);
+                // buffer_data[0..9].copy_from_slice(&initial_data[..]);
 
                 // msg!(&format!("{:?}", authorized_buffer.data));
 
