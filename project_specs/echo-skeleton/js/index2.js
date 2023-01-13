@@ -72,19 +72,15 @@ const main = async () => {
   data = (await connection.getAccountInfo(authorizedBuffer)).data;
   console.log("Echo Buffer Text:", data, data.toJSON());
 
+  // this will error
   // let tx2 = new Transaction();
   // tx2.add(echoIx);
 
-  // let txid2 = await sendAndConfirmTransaction(
-  //   connection,
-  //   tx2,
-  //   [feePayer, echoBuffer],
-  //   {
-  //     skipPreflight: true,
-  //     preflightCommitment: "confirmed",
-  //     confirmation: "confirmed",
-  //   }
-  // );
+  // let txid2 = await sendAndConfirmTransaction(connection, tx2, [feePayer], {
+  //   skipPreflight: true,
+  //   preflightCommitment: "confirmed",
+  //   confirmation: "confirmed",
+  // });
   // console.log(`https://explorer.solana.com/tx/${txid2}?cluster=devnet`);
 };
 
